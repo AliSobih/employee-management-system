@@ -42,9 +42,3 @@ A full-stack web application for managing departments and employees with compreh
 - **MySQL / PostgreSQL** (Production)
 - **H2 Database** (Development - optional)
 
-### Other Tools
-- **Git** for version control
-- **Postman** for API testing
-- **Swagger/OpenAPI** for API documentation (optional)
-
-## 📁 Project Structure
