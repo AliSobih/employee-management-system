@@ -1,0 +1,28 @@
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <i class="pi pi-briefcase"></i>
+      <span>EMS</span>
+    </div>
+    <nav class="nav">
+      <a
+        routerLink="/departmentsList"
+        routerLinkActive="active"
+      >
+        <i class="pi pi-building"></i>
+        <span>Departments</span>
+      </a>
+      <a routerLink="/employees" routerLinkActive="active">
+        <i class="pi pi-users"></i>
+        <span>Employees</span>
+      </a>
+    </nav>
+  </aside>
+
+  <main class="content">
+    <router-outlet></router-outlet>
+  </main>
+</div>
+
+<p-toast position="top-right"></p-toast>
+<p-confirmDialog></p-confirmDialog>

@@ -1,0 +1,270 @@
+<div class="employee-management-page">
+  <!-- Header -->
+  <div class="list-header">
+    <div class="title">
+      <i class="pi pi-users"></i>
+      <h2>Employees Management</h2>
+    </div>
+    <button
+      pButton
+      icon="pi pi-plus"
+      label="Add New Employee"
+      class="add-btn"
+      (click)="openAddDialog()"
+    ></button>
+  </div>
+
+  <!-- Filter Card -->
+  <div class="filter-card">
+    <div class="filter-grid">
+      <div class="filter-item">
+        <label>Employee Code</label>
+        <div class="field-shape">
+          <input
+            type="text"
+            pInputText
+            [(ngModel)]="searchCriteria.code"
+            placeholder="Search by code"
+          />
+        </div>
+      </div>
+
+      <div class="filter-item">
+        <label>Employee Name</label>
+        <div class="field-shape">
+          <input
+            type="text"
+            pInputText
+            [(ngModel)]="searchCriteria.name"
+            placeholder="Search by name"
+          />
+        </div>
+      </div>
+
+      <div class="filter-item">
+        <label>Department</label>
+        <div class="field-shape">
+          <p-dropdown
+            [(ngModel)]="searchCriteria.departmentId"
+            [options]="departments"
+            optionLabel="name"
+            optionValue="id"
+            [showClear]="true"
+            placeholder="Select Department"
+            [loading]="loadingDepartments"
+          >
+            <ng-template pTemplate="selectedItem">
+              <span *ngIf="searchCriteria.departmentId">
+                {{ departmentName }}
+              </span>
+              <span *ngIf="!searchCriteria.departmentId"
+                >Select Department</span
+              >
+            </ng-template>
+          </p-dropdown>
+        </div>
+      </div>
+
+      <div class="filter-item">
+        <label>Mobile</label>
+        <div class="field-shape">
+          <input
+            type="text"
+            pInputText
+            [(ngModel)]="searchCriteria.mobile"
+            placeholder="Search by mobile"
+          />
+        </div>
+      </div>
+
+      <div class="filter-item">
+        <label>Status</label>
+        <div class="field-shape">
+          <p-dropdown
+            [(ngModel)]="searchCriteria.isActive"
+            [options]="statusOptions"
+            optionLabel="label"
+            optionValue="value"
+            [showClear]="true"
+            placeholder="Select Status"
+          ></p-dropdown>
+        </div>
+      </div>
+
+      <div class="filter-item">
+        <label>Min Salary</label>
+        <div class="field-shape">
+          <p-inputNumber
+            [(ngModel)]="searchCriteria.minSalary"
+            mode="currency"
+            currency="USD"
+            locale="en-US"
+            placeholder="Min Salary"
+            [min]="0"
+          ></p-inputNumber>
+        </div>
+      </div>
+
+      <div class="filter-item">
+        <label>Max Salary</label>
+        <div class="field-shape">
+          <p-inputNumber
+            [(ngModel)]="searchCriteria.maxSalary"
+            mode="currency"
+            currency="USD"
+            locale="en-US"
+            placeholder="Max Salary"
+            [min]="0"
+          ></p-inputNumber>
+        </div>
+      </div>
+    </div>
+
+    <div class="filter-actions-inline">
+      <button
+        pButton
+        type="button"
+        label="Search"
+        icon="pi pi-search"
+        class="p-button-outlined"
+        (click)="onSearch()"
+        [disabled]="loading"
+      ></button>
+      <button
+        pButton
+        type="button"
+        label="Clear Filters"
+        icon="pi pi-filter-slash"
+        class="p-button-secondary"
+        (click)="resetFilters()"
+        [disabled]="loading"
+      ></button>
+    </div>
+  </div>
+
+  <!-- List Card -->
+  <div class="list-card">
+    <p-table
+      [value]="employees"
+      [lazy]="true"
+      [paginator]="true"
+      [rows]="rows"
+      [totalRecords]="totalRecords"
+      [loading]="loading"
+      (onPage)="onPageChange($event)"
+      responsiveLayout="scroll"
+      styleClass="p-datatable-full"
+    >
+      <ng-template pTemplate="caption">
+        <div class="table-caption">
+          <span class="caption-icon"><i class="pi pi-id-card"></i></span>
+          <span class="caption-text">All Employees</span>
+          <span *ngIf="paginationInfo" class="caption-info">
+            (Showing {{ paginationInfo.page * paginationInfo.size + 1 }} -
+            {{ displayedItemsCount }}
+            of {{ paginationInfo.totalElements }})
+          </span>
+        </div>
+      </ng-template>
+
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width: 60px">Photo</th>
+          <th>Code</th>
+          <th>Name</th>
+          <th>Department</th>
+          <th>Mobile</th>
+          <th>Salary</th>
+          <th>Status</th>
+          <th>Created Date</th>
+          <th>Actions</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-employee>
+        <tr class="table-row">
+          <td class="text-center ">
+            <img
+            style="width: 80px;"
+              [src]="getAvatarUrl(employee)"
+              [alt]="employee.name"
+              class="employee-avatar"
+              (error)="onImageError($event, employee)"
+              loading="lazy"
+            />
+          </td>
+          <td class="fw-bold text-primary">{{ employee.code }}</td>
+          <td>
+            <div class="employee-name">{{ employee.name }}</div>
+            <small class="text-muted">{{
+              employee.dateOfBirth ? formatDate(employee.dateOfBirth) : "No DOB"
+            }}</small>
+          </td>
+          <td>{{ getDepartmentName(employee) }}</td>
+          <td>{{ employee.mobile || "-" }}</td>
+          <td class="fw-bold text-success">
+            {{ formatCurrency(employee.salary) }}
+          </td>
+          <td>
+            <p-tag 
+              [value]="getStatusText(employee.isActive)" 
+            ></p-tag>
+          </td>
+          <td>{{ formatDate(employee.createdAt) }}</td>
+          <td class="actions">
+            <button
+              pButton
+              icon="pi pi-eye"
+              class="action-btn info"
+              (click)="openViewDialog(employee)"
+              pTooltip="View Details"
+            ></button>
+            <button
+              pButton
+              icon="pi pi-pencil"
+              class="action-btn warning mx-1"
+              (click)="openEditDialog(employee)"
+              pTooltip="Edit"
+            ></button>
+            <button
+              pButton
+              icon="pi pi-trash"
+              class="action-btn danger"
+              (click)="deleteEmployee(employee)"
+              pTooltip="Delete"
+            ></button>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="9" class="empty-state">
+            <i class="pi pi-inbox"></i>
+            <p>No employees found</p>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="loadingbody">
+        <tr>
+          <td colspan="9" class="text-center p-4">
+            <p-progressSpinner></p-progressSpinner>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <!-- Employee Form Dialog -->
+  <app-employee-form
+    *ngIf="showDialog"
+    [employee]="selectedEmployee"
+    [isEditMode]="isEditMode"
+    [visible]="showDialog"
+    (visibleChange)="onDialogClose($event)"
+  ></app-employee-form>
+
+  <p-toast></p-toast>
+  <p-confirmDialog></p-confirmDialog>
+</div>

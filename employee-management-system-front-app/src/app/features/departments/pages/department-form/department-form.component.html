@@ -1,0 +1,199 @@
+<p-dialog 
+  [(visible)]="visible" 
+  [modal]="true" 
+  [style]="{ width: '500px' }" 
+  [header]="formTitle"
+  [draggable]="false" 
+  [resizable]="false" 
+  [closeOnEscape]="true"
+  (onHide)="onClose()"
+  class="department-form-dialog"
+>
+  <form [formGroup]="departmentForm" (ngSubmit)="onSubmit()" class="p-fluid">
+    <!-- Code Field -->
+    <div class="field mb-4">
+      <label for="code" class="form-label">
+        <i class="pi pi-hashtag mr-2"></i>
+        Department Code *
+      </label>
+      <div class="p-inputgroup">
+        <span class="p-inputgroup-addon">
+          <i class="pi pi-id-card"></i>
+        </span>
+        <input 
+          type="text" 
+          id="code" 
+          pInputText 
+          formControlName="code" 
+          placeholder="Enter department code (e.g., HR, IT)"
+          [ngClass]="{ 'ng-invalid ng-dirty': departmentForm.get('code')?.invalid && departmentForm.get('code')?.touched }"
+          autocomplete="off"
+        />
+        <span class="p-inputgroup-addon" *ngIf="checkingCode">
+          <i class="pi pi-spinner pi-spin"></i>
+        </span>
+      </div>
+      
+      <!-- Validation Messages -->
+      <div class="validation-messages mt-1">
+        <small *ngIf="departmentForm.get('code')?.hasError('required') && departmentForm.get('code')?.touched" 
+               class="p-error">
+          <i class="pi pi-exclamation-circle mr-1"></i>
+          {{ getErrorMessage('code') }}
+        </small>
+        <small *ngIf="departmentForm.get('code')?.hasError('pattern') && departmentForm.get('code')?.touched" 
+               class="p-error">
+          <i class="pi pi-exclamation-circle mr-1"></i>
+          {{ getErrorMessage('code') }}
+        </small>
+        <small *ngIf="codeExists" class="p-error">
+          <i class="pi pi-exclamation-circle mr-1"></i>
+          {{ getErrorMessage('code') }}
+        </small>
+        <small *ngIf="!checkingCode && !codeExists && departmentForm.get('code')?.valid && departmentForm.get('code')?.value" 
+               class="p-success">
+          <i class="pi pi-check-circle mr-1"></i>
+          Code is available
+        </small>
+      </div>
+    </div>
+
+    <!-- Name Field -->
+    <div class="field mb-4">
+      <label for="name" class="form-label">
+        <i class="pi pi-building mr-2"></i>
+        Department Name *
+      </label>
+      <div class="p-inputgroup">
+        <span class="p-inputgroup-addon">
+          <i class="pi pi-tag"></i>
+        </span>
+        <input 
+          type="text" 
+          id="name" 
+          pInputText 
+          formControlName="name" 
+          placeholder="Enter department name"
+          [ngClass]="{ 'ng-invalid ng-dirty': departmentForm.get('name')?.invalid && departmentForm.get('name')?.touched }"
+          autocomplete="off"
+        />
+        <span class="p-inputgroup-addon" *ngIf="checkingName">
+          <i class="pi pi-spinner pi-spin"></i>
+        </span>
+      </div>
+      
+      <!-- Validation Messages -->
+      <div class="validation-messages mt-1">
+        <small *ngIf="departmentForm.get('name')?.hasError('required') && departmentForm.get('name')?.touched" 
+               class="p-error">
+          <i class="pi pi-exclamation-circle mr-1"></i>
+          {{ getErrorMessage('name') }}
+        </small>
+        <small *ngIf="departmentForm.get('name')?.hasError('minlength') && departmentForm.get('name')?.touched" 
+               class="p-error">
+          <i class="pi pi-exclamation-circle mr-1"></i>
+          {{ getErrorMessage('name') }}
+        </small>
+        <small *ngIf="departmentForm.get('name')?.hasError('pattern') && departmentForm.get('name')?.touched" 
+               class="p-error">
+          <i class="pi pi-exclamation-circle mr-1"></i>
+          {{ getErrorMessage('name') }}
+        </small>
+        <small *ngIf="nameExists" class="p-error">
+          <i class="pi pi-exclamation-circle mr-1"></i>
+          {{ getErrorMessage('name') }}
+        </small>
+        <small *ngIf="!checkingName && !nameExists && departmentForm.get('name')?.valid && departmentForm.get('name')?.value" 
+               class="p-success">
+          <i class="pi pi-check-circle mr-1"></i>
+          Name is available
+        </small>
+      </div>
+    </div>
+
+    <!-- Description Field -->
+    <div class="field mb-4">
+      <label for="description" class="form-label">
+        <i class="pi pi-file-edit mr-2"></i>
+        Description
+      </label>
+      <textarea 
+        id="description" 
+        pTextarea 
+        formControlName="description" 
+        rows="3" 
+        placeholder="Enter department description (optional)"
+        [autoResize]="true"
+        [ngClass]="{ 'ng-invalid ng-dirty': departmentForm.get('description')?.invalid && departmentForm.get('description')?.touched }"
+      ></textarea>
+      
+      <!-- Validation Messages -->
+      <div class="validation-messages mt-1">
+        <small *ngIf="departmentForm.get('description')?.hasError('maxlength') && departmentForm.get('description')?.touched" 
+               class="p-error">
+          <i class="pi pi-exclamation-circle mr-1"></i>
+          {{ getErrorMessage('description') }}
+        </small>
+        <small class="p-hint">
+          <i class="pi pi-info-circle mr-1"></i>
+          Maximum 500 characters ({{ departmentForm.get('description')?.value?.length || 0 }}/500)
+        </small>
+      </div>
+    </div>
+
+    <!-- Status Field -->
+    <div class="field mb-4" *ngIf="isEditMode">
+      <div class="flex align-items-center">
+        <p-checkbox 
+          formControlName="isActive" 
+          [binary]="true" 
+          inputId="isActive"
+        ></p-checkbox>
+        <label for="isActive" class="ml-2 mb-0 cursor-pointer">
+          <i class="pi pi-check-circle mr-2"></i>
+          Active Department
+        </label>
+      </div>
+      <small class="p-hint ml-6">
+        <i class="pi pi-info-circle mr-1"></i>
+        Inactive departments won't appear in dropdowns
+      </small>
+    </div>
+
+    <!-- Form Level Errors -->
+    <div *ngIf="departmentForm.errors && departmentForm.touched" class="mb-4">
+      <p-message severity="error" text="Please fix all errors before submitting"></p-message>
+    </div>
+  </form>
+
+  <ng-template pTemplate="footer">
+    <div class="flex justify-content-between w-100">
+      <button 
+        pButton 
+        type="button" 
+        label="Cancel" 
+        icon="pi pi-times" 
+        class="p-button-secondary" 
+        (click)="onClose()"
+        [disabled]="submitting"
+      ></button>
+      <button 
+        pButton 
+        type="button" 
+        [label]="submitButtonText" 
+        [icon]="submitting ? 'pi pi-spinner pi-spin' : (isEditMode ? 'pi pi-check' : 'pi pi-plus')" 
+        class="p-button-primary" 
+        (click)="onSubmit()"
+        [disabled]="departmentForm.invalid || submitting || codeExists || nameExists"
+      ></button>
+    </div>
+  </ng-template>
+
+  <!-- Loading Overlay -->
+  <div *ngIf="submitting" class="loading-overlay">
+    <div class="loading-content">
+      <p-progressSpinner styleClass="w-2rem h-2rem" strokeWidth="4" fill="var(--surface-ground)" animationDuration=".5s"></p-progressSpinner>
+      <p class="mt-3">{{ isEditMode ? 'Updating department...' : 'Creating department...' }}</p>
+    </div>
+  </div>
+</p-dialog>

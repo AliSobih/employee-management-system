@@ -1,0 +1,196 @@
+<div class="department-management-page">
+  <!-- Header -->
+  <div class="list-header">
+    <div class="title">
+      <i class="pi pi-building"></i>
+      <h2>Departments Management</h2>
+    </div>
+    <button
+      pButton
+      icon="pi pi-plus"
+      label="Add New Department"
+      class="add-btn"
+      (click)="openAddDialog()"
+    ></button>
+  </div>
+
+  <!-- Filter Card -->
+  <div class="filter-card">
+    <div class="filter-grid">
+      <div class="filter-item">
+        <label>Department Code</label>
+        <div class="field-shape">
+          <input
+            type="text"
+            pInputText
+            [(ngModel)]="searchCriteria.code"
+            placeholder="Search by code"
+          />
+        </div>
+      </div>
+
+      <div class="filter-item">
+        <label>Department Name</label>
+        <div class="field-shape">
+          <input
+            type="text"
+            pInputText
+            [(ngModel)]="searchCriteria.name"
+            placeholder="Search by name"
+          />
+        </div>
+      </div>
+
+      <div class="filter-item">
+        <label>Status</label>
+        <div class="field-shape">
+          <p-dropdown
+            [(ngModel)]="searchCriteria.isActive"
+            [options]="statusOptions"
+            optionLabel="label"
+            optionValue="value"
+            [showClear]="true"
+            placeholder="Select Status"
+          ></p-dropdown>
+        </div>
+      </div>
+    </div>
+
+    <div class="filter-actions-inline">
+      <button
+        pButton
+        type="button"
+        label="Search"
+        icon="pi pi-search"
+        class="p-button-outlined"
+        (click)="onSearch()"
+        [disabled]="loading"
+      ></button>
+      <button
+        pButton
+        type="button"
+        label="Clear Filters"
+        icon="pi pi-filter-slash"
+        class="p-button-secondary"
+        (click)="resetFilters()"
+        [disabled]="loading"
+      ></button>
+    </div>
+  </div>
+
+  <!-- List Card -->
+  <div class="list-card">
+    <p-table
+      [value]="departments"
+      [lazy]="true"
+      [paginator]="true"
+      [rows]="rows"
+      [totalRecords]="totalRecords"
+      [loading]="loading"
+      (onPage)="onPageChange($event)"
+      responsiveLayout="scroll"
+      styleClass="p-datatable-full"
+    >
+      <ng-template pTemplate="caption">
+        <div class="table-caption">
+          <div class="caption-left">
+            <span class="caption-icon"><i class="pi pi-building"></i></span>
+            <span class="caption-text">All Departments</span>
+          </div>
+          <span *ngIf="paginationInfo" class="caption-info">
+            Showing {{ (paginationInfo.page * paginationInfo.size) + 1 }} - 
+            {{ displayedItemsCount }} 
+            of {{ paginationInfo.totalElements }}
+          </span>
+        </div>
+      </ng-template>
+
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Code</th>
+          <th>Name</th>
+          <th>Description</th>
+          <th>Status</th>
+          <th>Created Date</th>
+          <th>Actions</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-department>
+        <tr class="table-row">
+          <td class="fw-bold text-primary">{{ department.code }}</td>
+          <td>{{ department.name }}</td>
+          <td>{{ department.description || '-' }}</td>
+          <td>
+            <p-tag 
+              [value]="getStatusText(department.isActive)" 
+            ></p-tag>
+          </td>
+          <td>{{ formatDate(department.createdAt) }}</td>
+          <td class="actions">
+            <button
+              pButton
+              icon="pi pi-eye"
+              class="action-btn info"
+              (click)="openViewDialog(department)"
+              pTooltip="View Details"
+            ></button>
+            <button
+              pButton
+              icon="pi pi-pencil"
+              class="action-btn warning mx-1"
+              (click)="openEditDialog(department)"
+              pTooltip="Edit"
+            ></button>
+            <button
+              *ngIf="department.isActive"
+              pButton
+              icon="pi pi-trash"
+              class="action-btn danger"
+              (click)="deleteDepartment(department)"
+              pTooltip="Delete"
+            ></button>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="6" class="empty-state">
+            <i class="pi pi-inbox"></i>
+            <p>No departments found</p>
+            <div class="empty-actions">
+              <button 
+                pButton 
+                label="Add First Department" 
+                icon="pi pi-plus" 
+                class="p-button-outlined p-button-sm"
+                (click)="openAddDialog()"
+              ></button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="loadingbody">
+        <tr>
+          <td colspan="6" class="text-center p-4">
+            <p-progressSpinner></p-progressSpinner>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <!-- Department Form Dialog -->
+  <app-department-form
+    *ngIf="showDialog"
+    [department]="selectedDepartment"
+    [isEditMode]="isEditMode"
+    [visible]="showDialog"
+    (visibleChange)="onDialogClose($event)"
+  ></app-department-form>
+
+  <p-toast></p-toast>
+  <p-confirmDialog></p-confirmDialog>
+</div>
